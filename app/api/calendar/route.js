@@ -47,12 +47,15 @@ export async function GET(request) {
         }
         
         // Create the calendar file
-        const { value } = await new Promise((resolve, reject) => {
-            ics.createEvents(events, (error, value) => {
-                if (error) reject(error);
-                resolve({ value });
-            });
-        });
+        const calendarName = `${cityQuery || 'Deine'} Gebetszeiten`; // Erstellt den Namen, z.B. "Mannheim Gebetszeiten"
+
+ics.createEvents({
+    calName: calendarName, // HIER IST DIE NEUE ZEILE
+    events: events
+}, (error, value) => {
+    if (error) reject(error);
+    resolve({ value });
+});
 
         // Send the calendar back as the response
         return new Response(value, {
