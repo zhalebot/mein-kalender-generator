@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 const adhan = require('adhan');
 const ics = require('ics');
-const axios = require('axios');const calendarName = `${cityQuery || 'Deine'} Gebetszeiten`; // Erstellt den Namen, z.B. "Mannheim Gebetszeiten"
+const axios = require('axios');
 
 // This is our main function that processes requests
 export async function GET(request) {
@@ -48,13 +48,10 @@ export async function GET(request) {
         
         // Create the calendar file
         const { value } = await new Promise((resolve, reject) => {
-            ics.createEvents({ calName: calendarName, // HIER IST DIE NEUE ZEILE
-        events: events
-        }, (error, value) => {
-   
-            if (error) reject(error);
-    resolve({ value });
-});
+            ics.createEvents(events, (error, value) => {
+                if (error) reject(error);
+                resolve({ value });
+            });
         });
 
         // Send the calendar back as the response
