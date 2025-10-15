@@ -19,7 +19,7 @@ export async function GET(request) {
             if (geoResponse.data && geoResponse.data.length > 0) {
                 lat = geoResponse.data[0].lat;
                 lon = geoResponse.data[0].lon;
-                cityName = geoResponse.data[0].display_name;
+                cityName = geoResponse.data[0].display_name.split(',')[0];
             } else {
                 throw new Error('City could not be found.');
             }
@@ -48,11 +48,14 @@ export async function GET(request) {
         
         // Create the calendar file
         const { value } = await new Promise((resolve, reject) => {
-            ics.createEvents(events, (error, value) => {
-                if (error) reject(error);
-                resolve({ value });
-            });
-        });
+    ics.createEvents({
+        calName: `${cityName} Gebetszeiten`,
+        events: events
+    }, (error, value) => {
+        if (error) reject(error);
+        resolve({ value });
+    });
+});
 
         // Send the calendar back as the response
         return new Response(value, {
