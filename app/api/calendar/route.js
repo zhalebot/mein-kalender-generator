@@ -58,7 +58,7 @@ export async function GET(request) {
         return new Response(value, {
             headers: {
                 'Content-Type': 'text/calendar',
-                'Content-Disposition': `attachment; filename="gebetszeiten.ics"`,
+                'Content-Disposition': `attachment; filename="gebetszeiten_${cityName}.ics"`,
             },
         });
 

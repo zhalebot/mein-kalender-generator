@@ -1,35 +1,54 @@
-'use client'; // Wichtig, damit die Seite interaktiv wird
+'use client';
 
 import { useState } from 'react';
-import styles from './page.module.css'; // Wir nutzen einfache CSS-Styles
+import styles from './page.module.css';
 
 export default function Home() {
-  // "Gedächtnis" für unsere Webseite
   const [city, setCity] = useState('');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(''); // NEU: Ein "Gedächtnis" für Fehlermeldungen
 
-  const handleGenerateUrl = () => {
+  // Die Funktion wird jetzt "async", damit sie auf den Test warten kann
+  const handleGenerateUrl = async () => {
     if (!city) {
       alert('Bitte gib einen Stadtnamen ein.');
       return;
     }
     setIsLoading(true);
     setGeneratedUrl('');
+    setError(''); // NEU: Alte Fehler zurücksetzen
     setCopied(false);
 
-    // Erstelle die URL basierend auf der Benutzereingabe
     const baseUrl = window.location.origin;
     const finalUrl = `${baseUrl}/api/calendar?city=${encodeURIComponent(city)}`;
-    setGeneratedUrl(finalUrl);
-    setIsLoading(false);
+
+    try {
+      // NEU: Wir testen den Link, bevor wir ihn anzeigen
+      const response = await fetch(finalUrl);
+
+      if (!response.ok) {
+        // Wenn der Server einen Fehler meldet (z.B. Stadt nicht gefunden)
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+      }
+
+      // Nur wenn der Test erfolgreich war, zeigen wir den Link an
+      setGeneratedUrl(finalUrl);
+
+    } catch (err) {
+      // Wenn etwas schiefgeht, zeigen wir eine Fehlermeldung an
+      setError('Stadt konnte nicht gefunden werden. Bitte überprüfe die Schreibweise.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(generatedUrl).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // "Kopiert!"-Nachricht nach 2s ausblenden
+      setTimeout(() => setCopied(false), 2000);
     });
   };
 
@@ -38,7 +57,7 @@ export default function Home() {
       <div className={styles.container}>
         <h1 className={styles.title}>Dein persönlicher Gebetszeiten-Kalender</h1>
         <p className={styles.description}>
-          Gib deine Stadt ein, um einen Kalender-Link zu generieren. Dieser Link kann in Google Kalender, Apple Kalender etc. abonniert werden und zeigt die Gebetszeiten für ein ganzes Jahr.
+          Gib deine Stadt ein, um einen Kalender-Link zu generieren...
         </p>
 
         <div className={styles.inputGroup}>
@@ -51,9 +70,12 @@ export default function Home() {
             onKeyDown={(e) => e.key === 'Enter' && handleGenerateUrl()}
           />
           <button onClick={handleGenerateUrl} disabled={isLoading} className={styles.button}>
-            {isLoading ? 'Generiere...' : 'Link generieren'}
+            {isLoading ? 'Prüfe...' : 'Link generieren'}
           </button>
         </div>
+
+        {/* NEU: Zeigt entweder das Ergebnis ODER die Fehlermeldung an */}
+        {error && <p className={styles.error}>{error}</p>}
 
         {generatedUrl && (
           <div className={styles.resultBox}>
@@ -68,11 +90,7 @@ export default function Home() {
         )}
 
         <footer className={styles.footer}>
-          <p>
-            <strong>Berechnungsmethode:</strong> Union of Islamic Organizations of France (UOIF)
-            <br />
-            Fajr: 12°, Isha: 12°, Asr: Standard (nicht Hanafi), High-Latitude: Angle Based
-          </p>
+          ...
         </footer>
       </div>
     </main>
