@@ -39,7 +39,7 @@ export async function GET(request) {
             const currentDate = new Date(startDate);
             currentDate.setDate(startDate.getDate() + i);
             const prayerTimes = new adhan.PrayerTimes(new adhan.Coordinates(parseFloat(lat), parseFloat(lon)), currentDate, calculationParameters);
-            const gebetsNamen = { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', magrib: 'Maghrib', isha: 'Isha' };
+            const gebetsNamen = { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
             for (const [gebet, name] of Object.entries(gebetsNamen)) {
                 const gebetsZeit = prayerTimes[gebet];
                 events.push({ title: name, start: [gebetsZeit.getFullYear(), gebetsZeit.getMonth() + 1, gebetsZeit.getDate(), gebetsZeit.getHours(), gebetsZeit.getMinutes()], duration: { minutes: 30 } });
