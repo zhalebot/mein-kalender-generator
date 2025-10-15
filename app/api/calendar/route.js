@@ -41,9 +41,17 @@ export async function GET(request) {
             const prayerTimes = new adhan.PrayerTimes(new adhan.Coordinates(parseFloat(lat), parseFloat(lon)), currentDate, calculationParameters);
             const gebetsNamen = { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
             for (const [gebet, name] of Object.entries(gebetsNamen)) {
-                const gebetsZeit = prayerTimes[gebet];
-                events.push({ title: name, start: [gebetsZeit.getFullYear(), gebetsZeit.getMonth() + 1, gebetsZeit.getDate(), gebetsZeit.getHours(), gebetsZeit.getMinutes()], duration: { minutes: 30 } });
-            }
+    const gebetsZeit = prayerTimes[gebet];
+
+    // HIER IST DIE SICHERHEITSABFRAGE
+    if (gebetsZeit) {
+        events.push({ 
+            title: name, 
+            start: [gebetsZeit.getFullYear(), gebetsZeit.getMonth() + 1, gebetsZeit.getDate(), gebetsZeit.getHours(), gebetsZeit.getMinutes()], 
+            duration: { minutes: 30 } 
+        });
+    }
+}
         }
         
         // Create the calendar file
